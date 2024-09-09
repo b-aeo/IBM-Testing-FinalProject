@@ -149,3 +149,40 @@ class TestProductModel(unittest.TestCase):
             product.create()
         products = Product.all()
         self.assertEqual(len(products), 5)
+
+    def test_find_product_by_name(self):
+        for i in range(5):
+            product = ProductFactory()
+            product.create()
+        products = Product.all()
+        product_name = products[0].name
+        number_of_product = len([product for product in products if product.name == product_name])
+        products_found = Product.find_by_name(product_name)
+        self.assertEqual(products_found.count(), number_of_product)
+        for product in products_found:
+            self.assertEqual(product.name, product_name)
+
+    def find_product_by_availability(self):
+        for i in range(10):
+            product = ProductFactory()
+            product.create()
+        products = Product.all()
+        product_availbility = products[0].available
+        number_of_product = len([product for product in products if product.available == product_availbility])
+        products_found = Product.find_by_availability(product_availbility)
+        self.assertEqual(products_found.count(), number_of_product)
+        for product in products_found:
+            self.assertEqual(product.available, product_availbility)
+
+    def find_product_by_category(self):
+        for i in range(10):
+            product = ProductFactory()
+            product.create()
+        products = Product.all()
+        product_category =  products[0].category
+        number_of_product = len([product for product in products if product.category == product_category])
+        products_found = Product.find_by_category(product_category)
+        self.assertEqual(products_found.count(), number_of_product)
+        for product in products_found:
+            self.assertEqual(product.category, product_category)
+
