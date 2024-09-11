@@ -30,6 +30,7 @@ from decimal import Decimal
 from service.models import Product, Category, db
 from service import app
 from tests.factories import ProductFactory
+from service.models import DataValidationError
 
 
 DATABASE_URI = os.getenv(
@@ -114,8 +115,9 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(found_product.name, product.name)
         self.assertEqual(found_product.description, product.description)
         self.assertEqual(found_product.price, product.price)
-    
+
     def test_update_a_product(self):
+        """It should update the product"""
         product = ProductFactory()
         product.id = None
         product.create()
@@ -130,7 +132,15 @@ class TestProductModel(unittest.TestCase):
         self.assertEqual(products[0].id, original_id)
         self.assertEqual(products[0].description, "testing")
 
+    def test_update_a_product_no_id(self):
+        """It should raise exception for product with no id field"""
+        product = ProductFactory()
+        product.create()
+        product.id = None
+        self.assertRaises(DataValidationError, product.update)
+
     def test_delete_a_product(self):
+        """It should delete the product"""
         product = ProductFactory()
         product.id = None
         product.create()
@@ -139,19 +149,20 @@ class TestProductModel(unittest.TestCase):
         product.delete()
         products = Product.all()
         self.assertEqual(len(products), 0)
-   
 
     def test_list_all_products(self):
+        """It should list all products in the product class"""
         products = Product.all()
         self.assertEqual(len(products), 0)
-        for i in range(5):
+        for product in range(5):
             product = ProductFactory()
             product.create()
         products = Product.all()
         self.assertEqual(len(products), 5)
 
     def test_find_product_by_name(self):
-        for i in range(5):
+        """It should find a product object by name"""
+        for product in range(5):
             product = ProductFactory()
             product.create()
         products = Product.all()
@@ -162,8 +173,9 @@ class TestProductModel(unittest.TestCase):
         for product in products_found:
             self.assertEqual(product.name, product_name)
 
-    def find_product_by_availability(self):
-        for i in range(10):
+    def test_find_product_by_availability(self):
+        """It should find product objects by availability"""
+        for product in range(10):
             product = ProductFactory()
             product.create()
         products = Product.all()
@@ -174,15 +186,28 @@ class TestProductModel(unittest.TestCase):
         for product in products_found:
             self.assertEqual(product.available, product_availbility)
 
-    def find_product_by_category(self):
-        for i in range(10):
+    def test_find_product_by_category(self):
+        """It should find product objects by category"""
+        for product in range(10):
             product = ProductFactory()
             product.create()
         products = Product.all()
-        product_category =  products[0].category
+        product_category = products[0].category
         number_of_product = len([product for product in products if product.category == product_category])
         products_found = Product.find_by_category(product_category)
         self.assertEqual(products_found.count(), number_of_product)
         for product in products_found:
             self.assertEqual(product.category, product_category)
 
+    def test_find_product_by_price(self):
+        """It should find product objects by price"""
+        for product in range(10):
+            product = ProductFactory()
+            product.create()
+        products = Product.all()
+        product_price = products[0].price
+        number_of_product = len([product for product in products if product.price == product_price])
+        products_found = Product.find_by_price(product_price)
+        self.assertEqual(products_found.count(), number_of_product)
+        for product in products_found:
+            self.assertEqual(product.price, product_price)
